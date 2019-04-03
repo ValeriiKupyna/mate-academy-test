@@ -76,12 +76,12 @@ function calculateWomenAverageAge(people, withChildren) {
     const mothers = {};
 
     const arrOfAges = people
-                        .map(item => {
-                            mothers[item.mother] = true;
-                            return item;
-                        })
-                        .filter(({ name, sex }) => (!withChildren || mothers[name]) && sex === 'f')
-                        .map(({ died, born }) => died - born);
+        .map(item => {
+            mothers[item.mother] = true;
+            return item;
+        })
+        .filter(({ name, sex }) => (!withChildren || mothers[name]) && sex === 'f')
+        .map(({ died, born }) => died - born);
 
     return arrOfAges
         .reduce((previousValue = 0, currentValue = 0) => previousValue + currentValue, 0) / arrOfAges.length;
@@ -101,35 +101,16 @@ function calculateWomenAverageAge(people, withChildren) {
  * @return {number}
  */
 function calculateAverageAgeDiff(people, onlyWithSon) {
-    const mothers = {};
+    const arrOfAges = people
+        .filter(({ sex, mother }) => (!onlyWithSon || sex === 'm') && mother)
+        .map(({ mother, born }) => {
+            const matherData = people.find(({ name }) => name === mother);
 
-    const arrOfChildren = people
-        .filter(({ mother }) => mother)
-        .map((item) => {
-            const { mother, name, born } = item;
-            const child = {
-                childName: name,
-                childBorn: born,
-            }
-            mothers[mother] ? mothers[mother].push(child) : mothers[mother] = [child];
-            return item;
+            return matherData ? born - matherData.born : null;
         })
+        .filter(item => item);
 
-        const difOfEdge =
-                        people
-                        .filter(({ name }) => mothers[name])
-                        .map(({ name, born }) => mothers[name].map(({ childBorn, childName }) => childName))
-        
-        // const test = [].concat(...difOfEdge);
-
-    console.log(mothers);
-    console.log(difOfEdge);
-    // console.log(test);
-
-    // return arrOfAges
-    //     .reduce((previousValue = 0, currentValue = 0) => previousValue + currentValue, 0) / arrOfAges.length;
-
-    return 2;
+    return arrOfAges.reduce((previousValue, currentValue) => previousValue + currentValue, 0) / arrOfAges.length;
 }
 
 
@@ -139,7 +120,7 @@ test(+calculateMenAverageAge(people, 18).toFixed(2), 56.50, 'Average men age in 
 test(+calculateWomenAverageAge(people).toFixed(2), 54.56, 'Average women age');
 test(+calculateWomenAverageAge(people, true).toFixed(2), 54.15, 'Average mothers age');
 test(+calculateAverageAgeDiff(people).toFixed(2), 31.22, 'Average age difference');
-// test(+calculateAverageAgeDiff(people, true).toFixed(2), 30.08, 'Average age difference with son');
+test(+calculateAverageAgeDiff(people, true).toFixed(2), 30.08, 'Average age difference with son');
 
 function test(actual, expected, testName = '') {
     if (actual !== expected) {
